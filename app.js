@@ -2,7 +2,7 @@ const express = require('express');
 const conectarDB = require('./utils/conexion');
 const authRoutes = require('./routes/authRoutes');
 const photoRoutes = require('./routes/photoRoutes');
-
+const playlistRoutes = require('./routes/playlistRoutes');
 const userRoutes = require('./routes/userRoutesRestricted');
 const cors = require("cors");
 
@@ -25,6 +25,7 @@ app.use('/usuarios', userRoutes);
 
 app.use('/photo', photoRoutes);
 
+app.use('/playlists', playlistRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
