@@ -4,6 +4,7 @@ const authRoutes = require('./routes/authRoutes');
 const photoRoutes = require('./routes/photoRoutes');
 const playlistRoutes = require('./routes/playlistRoutes');
 const userRoutes = require('./routes/userRoutesRestricted');
+const videoRoutes = require('./routes/videoRoutes');
 const cors = require("cors");
 
 
@@ -26,6 +27,8 @@ app.use('/usuarios', userRoutes);
 app.use('/photo', photoRoutes);
 
 app.use('/playlists', playlistRoutes);
+
+app.use('/videos', videoRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
