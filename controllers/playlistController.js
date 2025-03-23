@@ -11,7 +11,27 @@ exports.obtenerPlaylists = async (req, res) => {
         const decodedToken = jwt.verify(authToken.split(' ')[1], '12345');
         const userId = decodedToken.userId;
 
-        const playlists = await Playlist.find({ userId: userId }).populate('perfilesAsociados', 'nombreCompleto');
+        const playlists = await Playlist.find({ userId }).populate('perfilesAsociados');
+        res.json(playlists);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener las playlists' });
+    }
+};
+
+exports.obtenerPlaylistsRestringido = async (req, res) => {
+    try {
+        const authToken = req.headers['authorization'];
+        if (!authToken) {
+            return res.status(401).json({ error: 'Token de autorización no proporcionado' });
+        }
+
+        const { restrictedUserId } = req.body;
+        if (!restrictedUserId) {
+            return res.status(400).json({ error: 'ID de usuario restringido no proporcionado' });
+        }
+
+        // Buscar playlists donde el usuario restringido esté en perfilesAsociados
+        const playlists = await Playlist.find({ perfilesAsociados: restrictedUserId }).populate('perfilesAsociados');
         res.json(playlists);
     } catch (error) {
         res.status(500).json({ error: 'Error al obtener las playlists' });
@@ -54,8 +74,8 @@ exports.editarPlaylist = async (req, res) => {
 exports.eliminarPlaylist = async (req, res) => {
     try {
         const { id } = req.params;
-        const playlistEliminada = await Playlist.findByIdAndDelete(id);
-        if (!playlistEliminada) {
+        const playlist = await Playlist.findByIdAndDelete(id);
+        if (!playlist) {
             return res.status(404).json({ error: 'Playlist no encontrada' });
         }
         res.json({ mensaje: 'Playlist eliminada exitosamente' });
