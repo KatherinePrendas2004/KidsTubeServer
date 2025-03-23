@@ -20,6 +20,37 @@ exports.obtenerVideosPorPlaylist = async (req, res) => {
     }
 };
 
+exports.buscarVideos = async (req, res) => {
+    try {
+        const authToken = req.headers['authorization'];
+        if (!authToken) {
+            return res.status(401).json({ error: 'Token de autorización no proporcionado' });
+        }
+
+        const { restrictedUserId, searchText } = req.body;
+        if (!restrictedUserId || !searchText) {
+            return res.status(400).json({ error: 'ID de usuario restringido y texto de búsqueda son requeridos' });
+        }
+
+        // Buscar playlists asignadas al usuario restringido
+        const playlists = await Playlist.find({ perfilesAsociados: restrictedUserId });
+        const playlistIds = playlists.map(playlist => playlist._id);
+
+        // Buscar videos dentro de esas playlists que coincidan con el texto de búsqueda
+        const videos = await Video.find({
+            playlistId: { $in: playlistIds },
+            $or: [
+                { nombre: { $regex: searchText, $options: 'i' } }, // Búsqueda insensible a mayúsculas/minúsculas
+                { descripcion: { $regex: searchText, $options: 'i' } }
+            ]
+        });
+
+        res.json(videos);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al buscar los videos' });
+    }
+};
+
 exports.agregarVideo = async (req, res) => {
     try {
         const authToken = req.headers['authorization'];
